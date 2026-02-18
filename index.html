@@ -7,7 +7,31 @@
     <title>a-world-of-data</title>
   </head>
   <body>
-    <div id="app"></div>
+    <main id="app">
+      <article>
+        <header>
+          <div class="content">
+            <h1>The Education Effect</h1>
+          </div>
+        </header>
+        <section class="content main">
+          <p>It’s no great secret that globally, education rates have been on the rise for decades.</p>
+          <figure id="chart-edu-rate-playable">
+            <div class="details">
+              <div class="controls">
+                <h3 id="year" class="label">1970</h3>
+                <button id="playback">
+                  Play
+                </button>
+                <button id="replay">
+                  Replay
+                </button>
+              </div>
+            </div>
+          </figure>
+        </section>
+      </article>
+    </main>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
