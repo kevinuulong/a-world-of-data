@@ -133,3 +133,28 @@ figure {
   flex-grow: 0;
 
 }
+
+button {
+  box-sizing: border-box;
+
+  border: 1px solid #000000;
+
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+
+  background-color: #FFFFFF;
+
+  &.icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 24px;
+    padding: 0;
+
+    &:hover, &:focus {
+      background-color: color-mix(in srgb, #000000 10%, #FFFFFF 100%);
+    }
+
+  }
+
+}
