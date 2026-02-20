@@ -75,6 +75,7 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
 
         function play() {
             eduRatePlayable.state.isPlaying = true;
+            clearInterval(playback);
             if (eduRatePlayable.state.index >= data.length) {
                 eduRatePlayable.reset();
             }
