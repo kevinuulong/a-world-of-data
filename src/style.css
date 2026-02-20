@@ -35,7 +35,8 @@ p {
   margin: 0;
 }
 
-a, a:visited {
+a,
+a:visited {
   color: #330022;
 }
 
@@ -172,7 +173,20 @@ header {
 
 }
 
-figure {
+details .expanded {
+  margin-top: 10px;
+  font-weight: 300;
+  font-size: 14px;
+
+}
+
+blockquote {
+  font-weight: 300;
+  font-size: 14px;
+}
+
+figure,
+.container {
   box-sizing: border-box;
   margin: 0;
 
