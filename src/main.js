@@ -6,6 +6,8 @@ import "@fontsource-variable/merriweather-sans/wght-italic.css";
 import "@fontsource-variable/merriweather-sans";
 
 import "./style.css"
+import "./chart.css"
+
 import { hydrateIcons } from "./icons";
 import * as d3 from "d3";
 import EduRatePlayable from "./charts/EduRatePlayable";
@@ -29,8 +31,8 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
 
         eduRatePlayable = new EduRatePlayable({
             parentElement: "#chart-edu-rate-playable>.chart-area",
-            dataLabels: data.columns,
-        }, data);
+            dataLabels: data.columns.slice(1),
+        }, data[0]);
 
         eduRatePlayable.updateVis();
     })
