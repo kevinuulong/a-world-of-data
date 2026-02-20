@@ -35,6 +35,10 @@ p {
   margin: 0;
 }
 
+a, a:visited {
+  color: #330022;
+}
+
 #app {
   width: 100%;
   background-image: url("./grid_tile.svg"), linear-gradient(#FFFFFB, #FFFFFB);
@@ -45,15 +49,10 @@ header {
 
   padding-top: 80px;
   padding-bottom: 40px;
-  gap: 40px;
   isolation: isolate;
 
   background: #FFEAF8;
   border-bottom: 1px solid #330022;
-
-  flex: none;
-  align-self: stretch;
-  flex-grow: 0;
 
   color: #330022;
 
@@ -63,10 +62,101 @@ header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 40px;
 
   margin: auto;
 
   max-width: 600px;
+}
+
+.lede {
+  font-family: 'Merriweather Variable';
+  font-style: italic;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 30px;
+
+  color: #330022;
+
+  flex: none;
+  align-self: stretch;
+  flex-grow: 0;
+  z-index: 1;
+
+}
+
+.metadata {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 0px;
+  gap: 10px;
+
+
+  flex: none;
+  align-self: stretch;
+  flex-grow: 0;
+  z-index: 4;
+
+}
+
+.avatar {
+  box-sizing: border-box;
+
+  width: 48px;
+  height: 48px;
+
+  border: 1px solid rgba(51, 0, 34, 0.8);
+  border-radius: 24px;
+
+  flex: none;
+  flex-grow: 0;
+
+}
+
+.author {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 10px;
+
+
+  /* Inside auto layout */
+  flex: none;
+  align-self: stretch;
+  flex-grow: 0;
+
+}
+
+.byline {
+  font-family: 'Merriweather Sans Variable';
+  font-style: normal;
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 25px;
+
+  color: #330022;
+
+  flex: none;
+  align-self: stretch;
+  flex-grow: 0;
+
+}
+
+.publication-date {
+  font-family: 'Merriweather Sans Variable';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+
+  color: #330022;
+
+  flex: none;
+  align-self: stretch;
+  flex-grow: 0;
+
 }
 
 .main {

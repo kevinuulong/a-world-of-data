@@ -1,9 +1,10 @@
 // Supports weights 300-900
 import "@fontsource-variable/merriweather/standard.css";
+import '@fontsource-variable/merriweather/wght-italic.css';
 
 // Supports weights 300-800
-import "@fontsource-variable/merriweather-sans/wght-italic.css";
 import "@fontsource-variable/merriweather-sans";
+import "@fontsource-variable/merriweather-sans/wght-italic.css";
 
 import "./style.css"
 import "./chart.css"
@@ -13,6 +14,37 @@ import * as d3 from "d3";
 import EduRatePlayable from "./charts/EduRatePlayable";
 
 hydrateIcons();
+
+const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            switch (entry.target.id) {
+                case "chart-edu-rate-playable":
+                    eduRatePlayable.play();
+                    break;
+
+                default:
+                    break;
+            }
+        } else {
+            switch (entry.target.id) {
+                case "chart-edu-rate-playable":
+                    eduRatePlayable.pause();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    });
+}, {
+    threshold: 1,
+    root: null,
+
+});
+
+observer.observe(document.getElementById("chart-edu-rate-playable"));
+
 
 // Education Rate Playable Bar Chart
 let eduRatePlayable;
@@ -43,6 +75,9 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
 
         function play() {
             eduRatePlayable.state.isPlaying = true;
+            if (eduRatePlayable.state.index >= data.length) {
+                eduRatePlayable.reset();
+            }
             playback = setInterval(() => {
                 eduRatePlayable.state.index = (eduRatePlayable.state.index + 1);
                 if (eduRatePlayable.state.index >= data.length) {
@@ -87,9 +122,6 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
             if (eduRatePlayable.state.isPlaying) {
                 eduRatePlayable.pause();
             } else {
-                if (eduRatePlayable.state.index >= data.length) {
-                    eduRatePlayable.reset();
-                }
                 eduRatePlayable.play();
             }
         });

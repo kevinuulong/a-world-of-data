@@ -1,42 +1,56 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>a-world-of-data</title>
-  </head>
-  <body>
-    <main id="app">
-      <article>
-        <header>
-          <div class="content">
-            <h1>The Education Effect</h1>
-          </div>
-        </header>
-        <section class="content main">
-          <p>It’s no great secret that globally, education rates have been on the rise for decades.</p>
 
-          <figure id="chart-edu-rate-playable">
-            <div class="details">
-              <div class="controls">
-                <h3 class="year label">1970</h3>
-                <button class="icon playback" title="Play">
-                  <svg data-icon="play-arrow"></svg>
-                </button>
-                <button class="icon replay" title="Reset">
-                  <svg data-icon="replay"></svg>
-                </button>
-              </div>
-              <i class="data-source">Data source: UNESCO Institute for Statistics (2025) – with minor processing by Our World in Data</i>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Education Effect - A World of Data</title>
+</head>
+
+<body>
+  <main id="app">
+    <article>
+      <header>
+        <div class="content">
+          <!-- TODO: I would prefer this to be actual text, or at the very least selectable -->
+          <img src="/logo.svg" alt="The Education Effect">
+          <p class="lede">A data-driven, visual exploration of the effect increased education levels have on the world
+            around us.</p>
+          <div class="metadata">
+            <img src="/kevin.jpg" alt="Kevin Long" class="avatar">
+            <div class="author">
+              <p class="byline">Story and visuals by <a href="https://github.com/kevinuulong">Kevin Long</a></p>
+              <time datetime="2026-02-24" class="publication-date">Published 2026/02/24</time>
             </div>
-            <svg class="chart-area"></svg>
-          </figure>
+          </div>
+        </div>
+      </header>
+      <section class="content main">
+        <p>It’s no great secret that globally, education rates have been on the rise for decades.</p>
 
-          <p>This increase in education rates worldwide is great.</p>
-        </section>
-      </article>
-    </main>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+        <figure id="chart-edu-rate-playable">
+          <div class="details">
+            <div class="controls">
+              <h3 class="year label">1970</h3>
+              <button class="icon playback" title="Play">
+                <svg data-icon="play-arrow"></svg>
+              </button>
+              <button class="icon replay" title="Reset">
+                <svg data-icon="replay"></svg>
+              </button>
+            </div>
+            <i class="data-source">Data source: UNESCO Institute for Statistics (2025) – with minor processing by Our
+              World in Data</i>
+          </div>
+          <svg class="chart-area"></svg>
+        </figure>
+
+        <p>This increase in education rates worldwide is great.</p>
+      </section>
+    </article>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>
