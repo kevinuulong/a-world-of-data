@@ -8,13 +8,11 @@ import "@fontsource-variable/merriweather-sans";
 import "./style.css"
 import "./chart.css"
 
-import { hydrateIcons } from "./icons";
+import { hydrateIcons, setIcon } from "./utils/icons";
 import * as d3 from "d3";
 import EduRatePlayable from "./charts/EduRatePlayable";
 
 hydrateIcons();
-
-const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
 
 // Education Rate Playable Bar Chart
 let eduRatePlayable;
@@ -26,15 +24,79 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
             row["Tertiary enrollment"] = Number(row["Tertiary enrollment"]) / 100;
         });
 
-        // let flattenedData = Object.values(data[0]);
-        // let year = flattenedData.splice(0, 1);
-
         eduRatePlayable = new EduRatePlayable({
             parentElement: "#chart-edu-rate-playable>.chart-area",
             dataLabels: data.columns.slice(1),
+            // TODO: Automatically calculate this
+            sequenceMax: 1.2,
+            // TODO: Some of this playback control code is a mess and probably needs to be restructured/rethought
+            playback: {
+                play,
+                pause,
+                reset,
+            }
         }, data[0]);
 
         eduRatePlayable.updateVis();
+
+        let playback;
+
+        function play() {
+            eduRatePlayable.state.isPlaying = true;
+            playback = setInterval(() => {
+                eduRatePlayable.state.index = (eduRatePlayable.state.index + 1);
+                if (eduRatePlayable.state.index >= data.length) {
+                    pause();
+                    return;
+                }
+                eduRatePlayable.data = data[eduRatePlayable.state.index];
+
+                document.querySelector("#chart-edu-rate-playable .year.label").textContent = data[eduRatePlayable.state.index]?.["Year"];
+
+                eduRatePlayable.updateVis();
+            }, 200);
+
+
+            playbackButton.title = "Pause";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "pause");
+        }
+
+        const playbackButton = document.querySelector("#chart-edu-rate-playable button.playback");
+        const replayButton = document.querySelector("#chart-edu-rate-playable button.replay");
+
+        function pause() {
+            clearInterval(playback);
+            eduRatePlayable.state.isPlaying = false;
+
+            playbackButton.title = "Play";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "play-arrow");
+
+        }
+
+        function reset() {
+            // NOTE: I had originally paused and reset here, but I think it probably makes more sense to leave 
+            // the playback state alone
+            eduRatePlayable.state.index = 0;
+
+            eduRatePlayable.data = data[eduRatePlayable.state.index];
+            document.querySelector("#chart-edu-rate-playable .year.label").textContent = data[eduRatePlayable.state.index]?.["Year"];
+            eduRatePlayable.updateVis();
+        }
+
+        playbackButton.addEventListener("click", () => {
+            if (eduRatePlayable.state.isPlaying) {
+                eduRatePlayable.pause();
+            } else {
+                if (eduRatePlayable.state.index >= data.length) {
+                    eduRatePlayable.reset();
+                }
+                eduRatePlayable.play();
+            }
+        });
+
+        replayButton.addEventListener("click", () => {
+            eduRatePlayable.reset();
+        });
     })
     .catch((error) => {
         console.error(error);

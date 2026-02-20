@@ -1,15 +1,4 @@
 .chart-area {
-
-    .domain {
-        stroke-width: 2px;
-        stroke: #A7306F;
-    }
-
-    .ascender {
-        stroke-width: 2px;
-        stroke: #87C3DA;
-    }
-
     .tick {
         text {
             font-family: "Merriweather Sans Variable", sans-serif;
@@ -26,6 +15,22 @@
             stroke-width: 1px;
             stroke: #85AFB5;
             stroke-dasharray: 8px;
+        }
+
+        &:first-of-type {
+            line {
+                stroke-width: 2px;
+                stroke: #A7306F;
+                stroke-dasharray: none;
+            }
+        }
+
+        &:last-of-type {
+            line {
+                stroke-width: 2px;
+                stroke: #87C3DA;
+                stroke-dasharray: none;
+            }
         }
     }
 }

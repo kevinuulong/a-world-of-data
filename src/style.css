@@ -52,7 +52,6 @@ header {
   border-bottom: 1px solid #330022;
 
   flex: none;
-  order: 0;
   align-self: stretch;
   flex-grow: 0;
 
@@ -78,7 +77,6 @@ header {
   gap: 40px;
 
   flex: none;
-  order: 1;
   align-self: stretch;
   flex-grow: 0;
 
@@ -104,7 +102,6 @@ figure {
   border-radius: 4px;
 
   flex: none;
-  order: 1;
   flex-grow: 0;
 }
 
@@ -116,7 +113,6 @@ figure {
   gap: 10px;
 
   flex: none;
-  order: 0;
   align-self: stretch;
   flex-grow: 0;
 
@@ -130,7 +126,6 @@ figure {
   gap: 10px;
 
   flex: none;
-  order: 0;
   align-self: stretch;
   flex-grow: 0;
 
@@ -146,7 +141,6 @@ button {
   justify-content: center;
 
   flex: none;
-  order: 1;
   flex-grow: 0;
 
   background-color: #FFFFFF;
@@ -176,7 +170,6 @@ button {
   color: #000000;
 
   flex: none;
-  order: 0;
   flex-grow: 1;
 
 }
@@ -191,7 +184,6 @@ button {
   color: #000000;
 
   flex: none;
-  order: 1;
   flex-grow: 0;
 
 }

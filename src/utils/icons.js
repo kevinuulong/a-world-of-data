@@ -1,6 +1,6 @@
-import PauseIcon from "./assets/icons/pause.svg?raw";
-import PlayArrowIcon from "./assets/icons/play_arrow.svg?raw";
-import ReplayIcon from "./assets/icons/replay.svg?raw";
+import PauseIcon from "../assets/icons/pause.svg?raw";
+import PlayArrowIcon from "../assets/icons/play_arrow.svg?raw";
+import ReplayIcon from "../assets/icons/replay.svg?raw";
 
 const iconMap = {
     "pause": PauseIcon,
@@ -30,7 +30,10 @@ export function hydrateIcons() {
 export function setIcon(svg, icon) {
     if (icon && iconMap[icon]) {
         const newSVG = (parser.parseFromString(iconMap[icon], "image/svg+xml")).querySelector("svg");
-        newSVG.setAttribute("class", svg.getAttribute("class"));
+        let classes = svg.getAttribute("class");
+        if (classes) {
+            newSVG.setAttribute("class", classes);
+        }
         newSVG.dataset.icon = icon;
         svg.replaceWith(newSVG);
     }
