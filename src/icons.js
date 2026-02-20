@@ -14,10 +14,10 @@ const parser = new DOMParser();
  * Hydrates all icons on the current page.
  */
 export function hydrateIcons() {
-    const elements = document.querySelectorAll("svg.icon[data-type]");
+    const elements = document.querySelectorAll("svg[data-icon]");
 
     elements.forEach((svg) => {
-        const icon = svg.dataset.type;
+        const icon = svg.dataset.icon;
         setIcon(svg, icon);
     });
 }
@@ -31,8 +31,7 @@ export function setIcon(svg, icon) {
     if (icon && iconMap[icon]) {
         const newSVG = (parser.parseFromString(iconMap[icon], "image/svg+xml")).querySelector("svg");
         newSVG.setAttribute("class", svg.getAttribute("class"));
-        newSVG.classList.add("icon");
-        newSVG.dataset.type = icon;
+        newSVG.dataset.icon = icon;
         svg.replaceWith(newSVG);
     }
 }
