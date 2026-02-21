@@ -68,6 +68,41 @@ header {
   margin: auto;
 
   max-width: 600px;
+
+  position: relative;
+}
+
+#boat {
+  width: 128px;
+  transform: translateX(calc(-100% - 100px)) rotate(-15deg);
+  transition: 100ms;
+  position: absolute;
+  user-select: none;
+
+  &:hover {
+    transform: translateX(calc(-100% - 100px)) rotate(-20deg);
+
+  }
+}
+
+#plane {
+  width: 128px;
+  right: 0;
+  transform: translate(calc(100% + 50px), 300px);
+  transition: 100ms;
+  position: absolute;
+  user-select: none;
+
+  &:hover {
+    transform: translate(calc(100% + 50px), 300px) rotate(5deg);
+
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  #boat, #plane {
+    display: none;
+  }
 }
 
 .lede {
