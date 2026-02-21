@@ -1,8 +1,10 @@
+import ArrowRightIcon from "../assets/icons/arrow_right.svg?raw";
 import PauseIcon from "../assets/icons/pause.svg?raw";
 import PlayArrowIcon from "../assets/icons/play_arrow.svg?raw";
 import ReplayIcon from "../assets/icons/replay.svg?raw";
 
 const iconMap = {
+    "arrow-right": ArrowRightIcon,
     "pause": PauseIcon,
     "play-arrow": PlayArrowIcon,
     "replay": ReplayIcon

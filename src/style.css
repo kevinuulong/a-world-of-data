@@ -37,7 +37,7 @@ p {
 
 a,
 a:visited {
-  color: #330022;
+  color: inherit;
 }
 
 #app {
@@ -122,8 +122,6 @@ header {
   padding: 0px;
   gap: 10px;
 
-
-  /* Inside auto layout */
   flex: none;
   align-self: stretch;
   flex-grow: 0;
@@ -173,20 +171,61 @@ header {
 
 }
 
-details .expanded {
-  margin-top: 10px;
-  font-weight: 300;
+details {
+  border-top: solid 1px #330022;
+
   font-size: 14px;
 
+  summary {
+    background-color: #FFEAF8;
+    padding: 20px;
+    padding-left: 0;
+    color: #330022;
+
+    list-style: none;
+
+    display: flex;
+    align-items: center;
+
+    .icon {
+      width: 40px;
+    }
+
+  }
+
+  &[open] .icon {
+    transform: rotate(90deg);
+  }
+
+  .expanded {
+    padding: 20px 40px;
+    font-weight: 300;
+    font-size: 14px;
+
+  }
 }
+
+
 
 blockquote {
   font-weight: 300;
   font-size: 14px;
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  background-color: #FFEAF8;
+  border-left: solid 1px #330022;
+  color: #330022;
 }
 
-figure,
 .container {
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+figure {
   box-sizing: border-box;
   margin: 0;
 
@@ -200,13 +239,12 @@ figure,
 
   width: 600px;
 
-  background: #FFFFFF;
-  border: 1px solid #000000;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
-
   flex: none;
   flex-grow: 0;
+
+  &:has(+ details) {
+    padding-bottom: 20px;
+  }
 }
 
 .details {

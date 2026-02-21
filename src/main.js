@@ -15,12 +15,15 @@ import EduRatePlayable from "./charts/EduRatePlayable";
 
 hydrateIcons();
 
+// TODO: If the element is already fully visible on page load eduRatePlayable 
+// is still undefined. I fixed this for now by just not worrying about it and
+// making it fail silently, but this may be worth coming back to if I have time.
 const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
             switch (entry.target.id) {
                 case "chart-edu-rate-playable":
-                    eduRatePlayable.play();
+                    eduRatePlayable?.play();
                     break;
 
                 default:
@@ -29,7 +32,7 @@ const observer = new IntersectionObserver((entries, observer) => {
         } else {
             switch (entry.target.id) {
                 case "chart-edu-rate-playable":
-                    eduRatePlayable.pause();
+                    eduRatePlayable?.pause();
                     break;
 
                 default:

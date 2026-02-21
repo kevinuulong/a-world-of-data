@@ -64,14 +64,6 @@ export default class EduRatePlayable {
         this.yAxisGroup = this.chart.append("g")
             .attr("class", "axis y-axis");
 
-        // TODO: I don't like this for a couple of reasons, but mostly that it is outside the main chart group
-        // this.svg.append("line")
-        //     .attr("x1", 0)
-        //     .attr("y1", 1)
-        //     .attr("x2", this.width)
-        //     .attr("y2", 1)
-        //     .attr("class", "ascender")
-
     };
 
     updateVis() {
