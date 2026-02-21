@@ -2,7 +2,7 @@ import * as d3 from "d3";
 
 const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
 
-export default class EduRatePlayable {
+export default class GDPPlayable {
 
     /**
      * Class constructor with basic chart configuration
@@ -76,6 +76,7 @@ export default class EduRatePlayable {
         // really know why you would do that (I certainly never plan to) so I'm going to call it good
         // enough for now.
         let max = this.config.sequenceMax || d3.max(this.parsedData, (d) => d[1])
+        console.log(max);
         this.yScale.domain([0, max]);
 
         // TODO: This is also kind of hacky, I originally used the margin, but ran into issues
@@ -107,10 +108,10 @@ export default class EduRatePlayable {
             .data(this.parsedData)
             .join("text")
             .attr("class", "label")
-            .text((d) => percentFormatter.format(d[1]))
+            .text((d) => d[1])
             .attr("x", (d) => this.xScale(d[0]) + (this.xScale.bandwidth() / 2))
             .attr("text-anchor", "middle")
-            .attr("y", (d) => this.yScale(d[1]) - 8)
+            .attr("y", (d) => this.yScale(d[1]) - 8);
 
         this.yAxisGroup.call(this.yAxis)
             .select(".domain")

@@ -12,6 +12,7 @@ import "./chart.css"
 import { hydrateIcons, setIcon } from "./utils/icons";
 import * as d3 from "d3";
 import EduRatePlayable from "./charts/EduRatePlayable";
+import GDPPlayable from "./charts/GDPPlayable";
 
 hydrateIcons();
 
@@ -25,6 +26,10 @@ const observer = new IntersectionObserver((entries, observer) => {
                 case "chart-edu-rate-playable":
                     eduRatePlayable?.play();
                     break;
+                
+                case "chart-gdp-playable":
+                    gdpPlayable?.play();
+                    break
 
                 default:
                     break;
@@ -34,6 +39,10 @@ const observer = new IntersectionObserver((entries, observer) => {
                 case "chart-edu-rate-playable":
                     eduRatePlayable?.pause();
                     break;
+                
+                case "chart-gdp-playable":
+                    gdpPlayable?.pause();
+                    break
 
                 default:
                     break;
@@ -47,6 +56,7 @@ const observer = new IntersectionObserver((entries, observer) => {
 });
 
 observer.observe(document.getElementById("chart-edu-rate-playable"));
+observer.observe(document.getElementById("chart-gdp-playable"));
 
 
 // Education Rate Playable Bar Chart
@@ -132,6 +142,98 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
 
         replayButton.addEventListener("click", () => {
             eduRatePlayable.reset();
+        });
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+
+
+// GDP Playable Histogram
+let gdpPlayable;
+d3.csv("/data/gdp-distribution-log.csv")
+    .then((data) => {
+        const labels = data.columns.slice(1);
+        // TODO: I don't know if this is the most efficient/best way to do this
+        data.forEach((row) => {
+            labels.forEach((label) => {
+                row[label] = Number(row[label]);
+            });
+        });
+
+        gdpPlayable = new GDPPlayable({
+            parentElement: "#chart-gdp-playable>.chart-area",
+            dataLabels: labels,
+            // TODO: Automatically calculate this
+            sequenceMax: 100,
+            // TODO: Some of this playback control code is a mess and probably needs to be restructured/rethought
+            playback: {
+                play,
+                pause,
+                reset,
+            }
+        }, data[0]);
+
+        gdpPlayable.updateVis();
+
+        let playback;
+
+        function play() {
+            gdpPlayable.state.isPlaying = true;
+            clearInterval(playback);
+            if (gdpPlayable.state.index >= data.length) {
+                gdpPlayable.reset();
+            }
+            playback = setInterval(() => {
+                gdpPlayable.state.index = (gdpPlayable.state.index + 1);
+                if (gdpPlayable.state.index >= data.length) {
+                    pause();
+                    return;
+                }
+                gdpPlayable.data = data[gdpPlayable.state.index];
+
+                document.querySelector("#chart-gdp-playable .year.label").textContent = data[gdpPlayable.state.index]?.["Year"];
+
+                gdpPlayable.updateVis();
+            }, 200);
+
+
+            playbackButton.title = "Pause";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "pause");
+        }
+
+        const playbackButton = document.querySelector("#chart-gdp-playable button.playback");
+        const replayButton = document.querySelector("#chart-gdp-playable button.replay");
+
+        function pause() {
+            clearInterval(playback);
+            gdpPlayable.state.isPlaying = false;
+
+            playbackButton.title = "Play";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "play-arrow");
+
+        }
+
+        function reset() {
+            // NOTE: I had originally paused and reset here, but I think it probably makes more sense to leave 
+            // the playback state alone
+            gdpPlayable.state.index = 0;
+
+            gdpPlayable.data = data[gdpPlayable.state.index];
+            document.querySelector("#chart-gdp-playable .year.label").textContent = data[gdpPlayable.state.index]?.["Year"];
+            gdpPlayable.updateVis();
+        }
+
+        playbackButton.addEventListener("click", () => {
+            if (gdpPlayable.state.isPlaying) {
+                gdpPlayable.pause();
+            } else {
+                gdpPlayable.play();
+            }
+        });
+
+        replayButton.addEventListener("click", () => {
+            gdpPlayable.reset();
         });
     })
     .catch((error) => {
