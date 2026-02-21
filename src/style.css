@@ -42,7 +42,7 @@ a:visited {
 
 #app {
   width: 100%;
-  background-image: url("./grid_tile.svg"), linear-gradient(#FFFFFB, #FFFFFB);
+  background-image: url("/grid_tile.svg"), linear-gradient(#FFFFFB, #FFFFFB);
 }
 
 header {

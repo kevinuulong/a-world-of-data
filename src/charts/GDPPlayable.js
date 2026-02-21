@@ -75,8 +75,7 @@ export default class GDPPlayable {
         // NOTE: This is not perfect, i.e. when passed 0 it would default to d3.max, but I don't 
         // really know why you would do that (I certainly never plan to) so I'm going to call it good
         // enough for now.
-        let max = this.config.sequenceMax || d3.max(this.parsedData, (d) => d[1])
-        console.log(max);
+        let max = this.config.sequenceMax || d3.max(this.parsedData, (d) => d[1]);
         this.yScale.domain([0, max]);
 
         // TODO: This is also kind of hacky, I originally used the margin, but ran into issues
