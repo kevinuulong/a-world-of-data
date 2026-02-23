@@ -29,10 +29,14 @@ const observer = new IntersectionObserver((entries, observer) => {
                 case "chart-edu-rate-playable":
                     eduRatePlayable?.play();
                     break;
-                
+
                 case "chart-gdp-playable":
                     gdpPlayable?.play();
-                    break
+                    break;
+
+                case "chart-gdp-scatter-playable":
+                    gdpScatterPlayable?.play();
+                    break;
 
                 default:
                     break;
@@ -42,10 +46,14 @@ const observer = new IntersectionObserver((entries, observer) => {
                 case "chart-edu-rate-playable":
                     eduRatePlayable?.pause();
                     break;
-                
+
                 case "chart-gdp-playable":
                     gdpPlayable?.pause();
                     break
+
+                case "chart-gdp-scatter-playable":
+                    gdpScatterPlayable?.pause();
+                    break;
 
                 default:
                     break;
@@ -60,6 +68,7 @@ const observer = new IntersectionObserver((entries, observer) => {
 
 observer.observe(document.getElementById("chart-edu-rate-playable"));
 observer.observe(document.getElementById("chart-gdp-playable"));
+observer.observe(document.getElementById("chart-gdp-scatter-playable"));
 
 
 // Education Rate Playable Bar Chart
@@ -266,7 +275,7 @@ d3.csv("/data/edu-rates-merged.csv")
             });
         });
 
-        
+
         let groupedData = d3.groups(data, (d) => d["Year"]);
         groupedData.sort((a, b) => a[0] - b[0]);
 
