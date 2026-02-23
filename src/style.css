@@ -384,3 +384,35 @@ button {
   flex-grow: 0;
 
 }
+
+.switcher {
+  align-self: center;
+  justify-self: center;
+}
+
+select {
+  border: none;
+
+  font-family: 'Merriweather Sans Variable';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+
+  box-sizing: border-box;
+
+  padding: 5px 10px;
+
+  background: #FFFFFF;
+  border-radius: 4px;
+
+  flex: none;
+  flex-grow: 0;
+
+  color: #000000;
+
+}
+
+option {
+  font-weight: 300;
+}

@@ -16,7 +16,7 @@ export default class GDPScatterPlayable {
             colorScale: _config.colorScale,
             containerWidth: _config.containerWidth || 520,
             containerHeight: _config.containerHeight || 320,
-            margin: { top: 36, right: 0, bottom: 38, left: 0, ..._config.margin },
+            margin: { top: 4, right: 4, bottom: 38, left: 52, ..._config.margin },
             pointColor: _config.pointColor || "var(--bar-color)",
             xAxis: {
                 sequenceMax: _config.xAxis?.sequenceMax,
@@ -38,7 +38,7 @@ export default class GDPScatterPlayable {
 
     initVis() {
         this.width = this.config.containerWidth - this.config.margin.left - this.config.margin.right;
-        this.height = this.config.containerHeight - this.config.margin.bottom;
+        this.height = this.config.containerHeight - this.config.margin.top - this.config.margin.bottom;
 
         this.xScale = d3.scaleLinear()
             .range([0, this.width]);
@@ -48,19 +48,25 @@ export default class GDPScatterPlayable {
 
 
         this.xAxis = d3.axisBottom(this.xScale)
-            .tickFormat((d) => percentFormatter.format(d))
-            .tickSize(0)
+            .tickFormat((d) =>
+                this.xScale.tickFormat()(d) !== "" ? percentFormatter.format(d) : ""
+            )
+            .tickSize(-this.height)
             .tickPadding(20)
 
         this.yAxis = d3.axisLeft(this.yScale)
-            .tickSize(-this.width)
+            .tickFormat((d) =>
+                this.yScale.tickFormat()(d) !== "" ? d3.format("$,.0s")(d) : ""
+            )
+            .tickSize(0)
+            .tickPadding(10);
 
         this.svg = d3.select(this.config.parentElement)
             .attr("width", this.config.containerWidth)
             .attr("height", this.config.containerHeight);
 
         this.chart = this.svg.append("g")
-            .attr("transform", `translate(${this.config.margin.left}, 0)`);
+            .attr("transform", `translate(${this.config.margin.left}, ${this.config.margin.top})`);
 
         this.xAxisGroup = this.chart.append("g")
             .attr("class", "axis x-axis")
@@ -89,7 +95,7 @@ export default class GDPScatterPlayable {
         // TODO: This is also kind of hacky, I originally used the margin, but ran into issues
         // drawing the top line. Although it's not perfect, I like this better than my previous
         // solution of just force drawing an extra random line.
-        let ticks = this.yScale.ticks(6);
+        let ticks = this.yScale.ticks();
         if (!ticks.includes(this.config.yAxis?.sequenceMax)) {
             ticks.push(this.config.yAxis?.sequenceMax);
         }
@@ -115,21 +121,33 @@ export default class GDPScatterPlayable {
                 (exit) => exit.remove()
             );
 
+        points.on("mouseover", (e, d) => {
+            d3.select("#tooltip")
+                .style("display", "flex")
+                .style("left", `${e.pageX + 8}px`)
+                .style("top", `${e.pageY + 8}px`)
+                .html(`
+                    <div class="tooltip-labels">
+                        <div class="tooltip-primary">
+                            ${percentFormatter.format(d[this.config.xAxis?.label])}
+                        </div>
+                        <div class="tooltip-title">${d["Entity"]}</div>
+                    </div>
+                    <div class="tooltip-secondary">
+                        ${d3.format("$,.3s")(d[this.config.yAxis?.label])} GDP per capita
+                    </div>
+                `);
+        })
+            .on("mouseleave", (e, d) => {
+                d3.select("#tooltip")
+                    .style("display", "none");
+            });
 
-        // const labels = this.chart.selectAll(".label")
-        //     .data(this.filteredData)
-        //     .join("text")
-        //     .attr("class", "label")
-        //     .text((d) => d[1])
-        //     .attr("x", (d) => this.xScale(d[this.config.xAxis?.label]))
-        //     .attr("text-anchor", "middle")
-        //     .attr("y", (d) => this.yScale(d[1]) - 8);
+        this.yAxisGroup.call(this.yAxis);
 
-        this.yAxisGroup.call(this.yAxis)
+        this.xAxisGroup.call(this.xAxis)
             .select(".domain")
             .remove();
-
-        this.xAxisGroup.call(this.xAxis);
     };
 
     play() {

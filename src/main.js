@@ -249,6 +249,8 @@ let percentFields = ["Primary enrollment", "Secondary enrollment", "Tertiary enr
 d3.csv("/data/edu-rates-merged.csv")
     .then((data) => {
         const labels = data.columns.slice(3);
+        const xSwitcher = document.querySelector("#chart-gdp-scatter-playable select.x-switcher");
+
         // TODO: I don't know if this is the most efficient/best way to do this
         data.forEach((row) => {
             labels.forEach((label) => {
@@ -264,19 +266,16 @@ d3.csv("/data/edu-rates-merged.csv")
             });
         });
 
-        console.log("max", d3.max(data, (d) => d["Tertiary enrollment"]));
-
+        
         let groupedData = d3.groups(data, (d) => d["Year"]);
         groupedData.sort((a, b) => a[0] - b[0]);
-
-        let enrollment = "Tertiary enrollment"
 
         gdpScatterPlayable = new GDPScatterPlayable({
             parentElement: "#chart-gdp-scatter-playable>.chart-area",
             dataLabels: labels,
             xAxis: {
-                label: enrollment,
-                sequenceMax: d3.max(data, (d) => d[enrollment]),
+                label: xSwitcher.value,
+                sequenceMax: d3.max(data, (d) => d[xSwitcher.value]),
             },
             yAxis: {
                 label: "GDP per capita",
@@ -351,6 +350,12 @@ d3.csv("/data/edu-rates-merged.csv")
         replayButton.addEventListener("click", () => {
             gdpScatterPlayable.reset();
         });
+
+        xSwitcher.addEventListener("change", (e) => {
+            gdpScatterPlayable.config.xAxis.label = e.target.value;
+            gdpScatterPlayable.config.xAxis.sequenceMax = d3.max(data, (d) => d[e.target.value]);
+            gdpScatterPlayable.updateVis();
+        })
     })
     .catch((error) => {
         console.error(error);

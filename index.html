@@ -38,7 +38,8 @@
             <div class="chart-details">
               <div class="chart-subtitle">
                 <h3 class="year label">1970</h3>
-                <i class="data-source">Data source: UNESCO Institute for Statistics (2025) – with minor processing by Our
+                <i class="data-source">Data source: UNESCO Institute for Statistics (2025) – with minor processing by
+                  Our
                   World in Data</i>
               </div>
               <div class="controls">
@@ -100,9 +101,9 @@
         <p>We can see this clear correlation. The higher the levels of educational attainment, the higher a country's
           GDP rises.</p>
 
-          <div class="container">
+        <div class="container">
           <figure id="chart-gdp-scatter-playable">
-            <h2 class="chart-title">Number of countries by GDP</h2>
+            <h2 class="chart-title">Per capita GPD by enrollment rate</h2>
             <div class="chart-details">
               <div class="chart-subtitle">
                 <h3 class="year label">1970</h3>
@@ -119,6 +120,11 @@
               </div>
             </div>
             <svg class="chart-area"></svg>
+            <select name="gdp-scatter-playable-x-switcher" class="x-switcher switcher">
+              <option value="Primary enrollment">Primary enrollment</option>
+              <option value="Secondary enrollment" selected>Secondary enrollment</option>
+              <option value="Tertiary enrollment">Tertiary enrollment</option>
+            </select>
           </figure>
         </div>
 
@@ -127,6 +133,8 @@
       </section>
     </article>
   </main>
+
+  <div id="tooltip"></div>
   <script type="module" src="/src/main.js"></script>
 </body>
 

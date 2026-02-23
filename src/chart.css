@@ -1,3 +1,79 @@
+#tooltip {
+    position: absolute;
+    display: none;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 10px;
+
+    position: absolute;
+    min-width: 200px;
+
+    background: #FFFFFF;
+    border: 1px solid #000000;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+
+}
+
+.tooltip-labels {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 5px;
+
+    flex: none;
+    flex-grow: 0;
+
+}
+
+.tooltip-title {
+    font-family: 'Merriweather Sans Variable';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+
+    color: #000000;
+
+    flex: none;
+    flex-grow: 0;
+
+}
+
+.tooltip-primary {
+    font-family: 'Merriweather Sans Variable';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 18px;
+
+    color: #A7306F;
+
+    flex: none;
+    flex-grow: 0;
+
+}
+
+.tooltip-secondary {
+    font-family: 'Merriweather Sans Variable';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 18px;
+
+    color: #000000;
+
+    flex: none;
+    flex-grow: 0;
+
+}
+
 .chart-area {
     .tick {
         text {
@@ -16,21 +92,54 @@
             stroke: #85AFB5;
             stroke-dasharray: 8px;
         }
+    }
 
-        &:first-of-type {
-            line {
-                stroke-width: 2px;
-                stroke: #A7306F;
-                stroke-dasharray: none;
+    .y-axis {
+        .tick {
+            &:first-of-type {
+                line {
+                    stroke-width: 2px;
+                    stroke: #A7306F;
+                    stroke-dasharray: none;
+                }
+            }
+
+            &:last-of-type {
+                line {
+                    stroke-width: 2px;
+                    stroke: #87C3DA;
+                    stroke-dasharray: none;
+                }
+
+                text {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+#chart-gdp-scatter-playable {
+    .chart-area {
+        .x-axis {
+            .tick {
+                &:first-of-type {
+                    line {
+                        stroke-width: 2px;
+                        stroke: #A7306F;
+                        stroke-dasharray: none;
+                    }
+                }
+
+                &:last-of-type {
+                    line {
+                        stroke-width: 2px;
+                        stroke: #87C3DA;
+                        stroke-dasharray: none;
+                    }
+                }
             }
         }
 
-        &:last-of-type {
-            line {
-                stroke-width: 2px;
-                stroke: #87C3DA;
-                stroke-dasharray: none;
-            }
-        }
     }
 }
