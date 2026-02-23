@@ -9,10 +9,13 @@ import "@fontsource-variable/merriweather-sans/wght-italic.css";
 import "./style.css"
 import "./chart.css"
 
-import { hydrateIcons, setIcon } from "./utils/icons";
 import * as d3 from "d3";
+
+import { hydrateIcons, setIcon } from "./utils/icons";
+
 import EduRatePlayable from "./charts/EduRatePlayable";
 import GDPPlayable from "./charts/GDPPlayable";
+import GDPScatterPlayable from "./charts/GDPScatterPlayable";
 
 hydrateIcons();
 
@@ -234,6 +237,119 @@ d3.csv("/data/gdp-distribution-log.csv")
 
         replayButton.addEventListener("click", () => {
             gdpPlayable.reset();
+        });
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+
+// GDP Playable Scatter Plot
+let gdpScatterPlayable;
+let percentFields = ["Primary enrollment", "Secondary enrollment", "Tertiary enrollment"];
+d3.csv("/data/edu-rates-merged.csv")
+    .then((data) => {
+        const labels = data.columns.slice(3);
+        // TODO: I don't know if this is the most efficient/best way to do this
+        data.forEach((row) => {
+            labels.forEach((label) => {
+                // Handle missing data
+                if (row[label] === "") {
+                    row[label] = null;
+                    return;
+                }
+                row[label] = Number(row[label]);
+                if (percentFields.includes(label)) {
+                    row[label] = row[label] / 100;
+                }
+            });
+        });
+
+        console.log("max", d3.max(data, (d) => d["Tertiary enrollment"]));
+
+        let groupedData = d3.groups(data, (d) => d["Year"]);
+        groupedData.sort((a, b) => a[0] - b[0]);
+
+        let enrollment = "Tertiary enrollment"
+
+        gdpScatterPlayable = new GDPScatterPlayable({
+            parentElement: "#chart-gdp-scatter-playable>.chart-area",
+            dataLabels: labels,
+            xAxis: {
+                label: enrollment,
+                sequenceMax: d3.max(data, (d) => d[enrollment]),
+            },
+            yAxis: {
+                label: "GDP per capita",
+                sequenceMax: d3.max(data, (d) => d["GDP per capita"]),
+            },
+            // TODO: Some of this playback control code is a mess and probably needs to be restructured/rethought
+            playback: {
+                play,
+                pause,
+                reset,
+            }
+        }, groupedData[0][1]);
+
+        gdpScatterPlayable.updateVis();
+
+        let playback;
+
+        function play() {
+            gdpScatterPlayable.state.isPlaying = true;
+            clearInterval(playback);
+            if (gdpScatterPlayable.state.index >= groupedData.length) {
+                gdpScatterPlayable.reset();
+            }
+            playback = setInterval(() => {
+                gdpScatterPlayable.state.index = (gdpScatterPlayable.state.index + 1);
+                if (gdpScatterPlayable.state.index >= groupedData.length) {
+                    pause();
+                    return;
+                }
+                gdpScatterPlayable.data = groupedData[gdpScatterPlayable.state.index][1];
+
+                document.querySelector("#chart-gdp-scatter-playable .year.label").textContent = groupedData[gdpScatterPlayable.state.index][0];
+
+                gdpScatterPlayable.updateVis();
+            }, 200);
+
+
+            playbackButton.title = "Pause";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "pause");
+        }
+
+        const playbackButton = document.querySelector("#chart-gdp-scatter-playable button.playback");
+        const replayButton = document.querySelector("#chart-gdp-scatter-playable button.replay");
+
+        function pause() {
+            clearInterval(playback);
+            gdpScatterPlayable.state.isPlaying = false;
+
+            playbackButton.title = "Play";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "play-arrow");
+
+        }
+
+        function reset() {
+            // NOTE: I had originally paused and reset here, but I think it probably makes more sense to leave 
+            // the playback state alone
+            gdpScatterPlayable.state.index = 0;
+
+            gdpScatterPlayable.data = groupedData[gdpScatterPlayable.state.index][1];
+            document.querySelector("#chart-gdp-scatter-playable .year.label").textContent = groupedData[gdpScatterPlayable.state.index][0];
+            gdpScatterPlayable.updateVis();
+        }
+
+        playbackButton.addEventListener("click", () => {
+            if (gdpScatterPlayable.state.isPlaying) {
+                gdpScatterPlayable.pause();
+            } else {
+                gdpScatterPlayable.play();
+            }
+        });
+
+        replayButton.addEventListener("click", () => {
+            gdpScatterPlayable.reset();
         });
     })
     .catch((error) => {

@@ -1,7 +1,5 @@
 import * as d3 from "d3";
 
-const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
-
 export default class GDPPlayable {
 
     /**
@@ -93,24 +91,36 @@ export default class GDPPlayable {
 
     renderVis() {
         const bars = this.chart.selectAll(".bar")
-            .data(this.parsedData)
-            .join("rect")
-            .attr("class", "bar")
-            .attr("x", (d) => this.xScale(d[0]))
-            .attr("width", this.xScale.bandwidth())
-            .attr("y", (d) => this.yScale(d[1]))
-            .attr("height", (d) => this.height - this.yScale(d[1]))
-            .attr("fill", this.config.barColor)
-            .attr("rx", 4);
+            .data(this.parsedData, (d) => d[0])
+            .join(
+                (enter) => enter.append("rect")
+                    .attr("class", "bar")
+                    .attr("x", (d) => this.xScale(d[0]))
+                    .attr("width", this.xScale.bandwidth())
+                    .attr("y", (d) => this.yScale(d[1]))
+                    .attr("height", (d) => this.height - this.yScale(d[1]))
+                    .attr("fill", this.config.barColor)
+                    .attr("rx", 4),
+                (update) => update.transition().duration(200)
+                    .attr("y", (d) => this.yScale(d[1]))
+                    .attr("height", (d) => this.height - this.yScale(d[1])),
+                (exit) => exit.remove()
+            );
 
         const labels = this.chart.selectAll(".label")
-            .data(this.parsedData)
-            .join("text")
-            .attr("class", "label")
-            .text((d) => d[1])
-            .attr("x", (d) => this.xScale(d[0]) + (this.xScale.bandwidth() / 2))
-            .attr("text-anchor", "middle")
-            .attr("y", (d) => this.yScale(d[1]) - 8);
+            .data(this.parsedData, (d) => d[0])
+            .join(
+                (enter) => enter.append("text")
+                    .attr("class", "label")
+                    .text((d) => d[1])
+                    .attr("x", (d) => this.xScale(d[0]) + (this.xScale.bandwidth() / 2))
+                    .attr("text-anchor", "middle")
+                    .attr("y", (d) => this.yScale(d[1]) - 8),
+                (update) => update.transition().duration(200)
+                    .text((d) => d[1])
+                    .attr("y", (d) => this.yScale(d[1]) - 8),
+                (exit) => exit.remove()
+            );
 
         this.yAxisGroup.call(this.yAxis)
             .select(".domain")

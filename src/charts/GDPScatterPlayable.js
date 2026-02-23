@@ -2,7 +2,7 @@ import * as d3 from "d3";
 
 const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
 
-export default class EduRatePlayable {
+export default class GDPScatterPlayable {
 
     /**
      * Class constructor with basic chart configuration
@@ -17,9 +17,15 @@ export default class EduRatePlayable {
             containerWidth: _config.containerWidth || 520,
             containerHeight: _config.containerHeight || 320,
             margin: { top: 36, right: 0, bottom: 38, left: 0, ..._config.margin },
-            dataLabels: _config.dataLabels,
-            barColor: _config.barColor || "var(--bar-color)",
-            sequenceMax: _config.sequenceMax,
+            pointColor: _config.pointColor || "var(--bar-color)",
+            xAxis: {
+                sequenceMax: _config.xAxis?.sequenceMax,
+                label: _config.xAxis?.label,
+            },
+            yAxis: {
+                sequenceMax: _config.yAxis?.sequenceMax,
+                label: _config.yAxis?.label,
+            },
             playback: _config.playback,
         }
         this.data = _data;
@@ -34,21 +40,20 @@ export default class EduRatePlayable {
         this.width = this.config.containerWidth - this.config.margin.left - this.config.margin.right;
         this.height = this.config.containerHeight - this.config.margin.bottom;
 
-        this.yScale = d3.scaleLinear()
+        this.xScale = d3.scaleLinear()
+            .range([0, this.width]);
+
+        this.yScale = d3.scaleLog()
             .range([this.height, 0]);
 
-        this.xScale = d3.scaleBand()
-            .range([0, this.width])
-            .padding(0.2);
 
         this.xAxis = d3.axisBottom(this.xScale)
-            .ticks(this.config.dataLabels)
+            .tickFormat((d) => percentFormatter.format(d))
             .tickSize(0)
-            .tickPadding(20);
+            .tickPadding(20)
 
         this.yAxis = d3.axisLeft(this.yScale)
             .tickSize(-this.width)
-            .tickFormat("")
 
         this.svg = d3.select(this.config.parentElement)
             .attr("width", this.config.containerWidth)
@@ -67,23 +72,26 @@ export default class EduRatePlayable {
     };
 
     updateVis() {
-        // NOTE: Cannot use Object.entries here because it does not guarantee the correct order is maintained
-        this.parsedData = this.config.dataLabels.map((label) => [label, this.data[label]]);
-
-        this.xScale.domain(this.config.dataLabels);
+        this.filteredData = this.data.filter((d) => d[this.config.xAxis?.label] !== null && d[this.config.yAxis?.label] !== null);
+        // NOTE: This is not perfect, i.e. when passed 0 it would default to d3.max, but I don't 
+        // really know why you would do that (I certainly never plan to) so I'm going to call it good
+        // enough for now.
+        let xMax = this.config.xAxis?.sequenceMax || d3.max(this.filteredData, (d) => d[this.config.xAxis?.label]);
+        // console.log("x-max", xMax);
+        this.xScale.domain([0, xMax]);
 
         // NOTE: This is not perfect, i.e. when passed 0 it would default to d3.max, but I don't 
         // really know why you would do that (I certainly never plan to) so I'm going to call it good
         // enough for now.
-        let max = this.config.sequenceMax || d3.max(this.parsedData, (d) => d[1])
-        this.yScale.domain([0, max]);
+        let yMax = this.config.yAxis?.sequenceMax || d3.max(this.filteredData, (d) => d[this.config.yAxis?.label]);
+        this.yScale.domain([100, yMax]);
 
         // TODO: This is also kind of hacky, I originally used the margin, but ran into issues
         // drawing the top line. Although it's not perfect, I like this better than my previous
         // solution of just force drawing an extra random line.
-        let ticks = this.yScale.ticks(5);
-        if (!ticks.includes(this.config.sequenceMax)) {
-            ticks.push(this.config.sequenceMax);
+        let ticks = this.yScale.ticks(6);
+        if (!ticks.includes(this.config.yAxis?.sequenceMax)) {
+            ticks.push(this.config.yAxis?.sequenceMax);
         }
 
         this.yAxis.tickValues(ticks);
@@ -92,39 +100,30 @@ export default class EduRatePlayable {
     };
 
     renderVis() {
-        const bars = this.chart.selectAll(".bar")
-            .data(this.parsedData, (d) => d[0])
+        const points = this.chart.selectAll(".point")
+            .data(this.filteredData, (d) => d["Code"])
             .join(
-                (enter) => enter.append("rect")
-                    .attr("class", "bar")
-                    .attr("x", (d) => this.xScale(d[0]))
-                    .attr("width", this.xScale.bandwidth())
-                    .attr("y", (d) => this.yScale(d[1]))
-                    .attr("height", (d) => this.height - this.yScale(d[1]))
-                    .attr("fill", this.config.barColor)
-                    .attr("rx", 4),
+                (enter) => enter.append("circle")
+                    .attr("class", "point")
+                    .attr("r", 4)
+                    .attr("cx", (d) => this.xScale(d[this.config.xAxis?.label]))
+                    .attr("cy", (d) => this.yScale(d[this.config.yAxis?.label]))
+                    .attr("fill", this.config.pointColor),
                 (update) => update.transition().duration(200)
-                    .attr("y", (d) => this.yScale(d[1]))
-                    .attr("height", (d) => this.height - this.yScale(d[1])),
+                    .attr("cx", (d) => this.xScale(d[this.config.xAxis?.label]))
+                    .attr("cy", (d) => this.yScale(d[this.config.yAxis?.label])),
                 (exit) => exit.remove()
             );
 
 
-        const labels = this.chart.selectAll(".label")
-            .data(this.parsedData, (d) => d[0])
-            .join(
-                (enter) => enter.append("text")
-                    .attr("class", "label")
-                    .text((d) => percentFormatter.format(d[1]))
-                    .attr("x", (d) => this.xScale(d[0]) + (this.xScale.bandwidth() / 2))
-                    .attr("text-anchor", "middle")
-                    .attr("y", (d) => this.yScale(d[1]) - 8),
-                (update) => update.transition().duration(200)
-                    .text((d) => percentFormatter.format(d[1]))
-                    .attr("y", (d) => this.yScale(d[1]) - 8),
-                (exit) => exit.remove()
-            );
-
+        // const labels = this.chart.selectAll(".label")
+        //     .data(this.filteredData)
+        //     .join("text")
+        //     .attr("class", "label")
+        //     .text((d) => d[1])
+        //     .attr("x", (d) => this.xScale(d[this.config.xAxis?.label]))
+        //     .attr("text-anchor", "middle")
+        //     .attr("y", (d) => this.yScale(d[1]) - 8);
 
         this.yAxisGroup.call(this.yAxis)
             .select(".domain")
