@@ -75,6 +75,7 @@ export default class GDPScatterPlayable {
         this.yAxisGroup = this.chart.append("g")
             .attr("class", "axis y-axis");
 
+        this.updateVis();
     };
 
     updateVis() {

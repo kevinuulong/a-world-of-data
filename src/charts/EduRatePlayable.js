@@ -64,6 +64,9 @@ export default class EduRatePlayable {
         this.yAxisGroup = this.chart.append("g")
             .attr("class", "axis y-axis");
 
+
+        this.updateVis();
+
     };
 
     updateVis() {

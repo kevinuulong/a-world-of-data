@@ -16,6 +16,7 @@ import { hydrateIcons, setIcon } from "./utils/icons";
 import EduRatePlayable from "./charts/EduRatePlayable";
 import GDPPlayable from "./charts/GDPPlayable";
 import GDPScatterPlayable from "./charts/GDPScatterPlayable";
+import ChoroplethMap from "./charts/ChoroplethMap";
 
 hydrateIcons();
 
@@ -93,8 +94,6 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
                 reset,
             }
         }, data[0]);
-
-        eduRatePlayable.updateVis();
 
         let playback;
 
@@ -186,8 +185,6 @@ d3.csv("/data/gdp-distribution-log.csv")
             }
         }, data[0]);
 
-        gdpPlayable.updateVis();
-
         let playback;
 
         function play() {
@@ -255,6 +252,7 @@ d3.csv("/data/gdp-distribution-log.csv")
 // GDP Playable Scatter Plot
 let gdpScatterPlayable;
 let percentFields = ["Primary enrollment", "Secondary enrollment", "Tertiary enrollment"];
+const { promise: eduRatesMerged, resolve: resolveEduRatesMerged } = Promise.withResolvers();
 d3.csv("/data/edu-rates-merged.csv")
     .then((data) => {
         const labels = data.columns.slice(3);
@@ -279,9 +277,10 @@ d3.csv("/data/edu-rates-merged.csv")
         let groupedData = d3.groups(data, (d) => d["Year"]);
         groupedData.sort((a, b) => a[0] - b[0]);
 
+        resolveEduRatesMerged(groupedData);
+
         gdpScatterPlayable = new GDPScatterPlayable({
             parentElement: "#chart-gdp-scatter-playable>.chart-area",
-            dataLabels: labels,
             xAxis: {
                 label: xSwitcher.value,
                 sequenceMax: d3.max(data, (d) => d[xSwitcher.value]),
@@ -297,8 +296,6 @@ d3.csv("/data/edu-rates-merged.csv")
                 reset,
             }
         }, groupedData[0][1]);
-
-        gdpScatterPlayable.updateVis();
 
         let playback;
 
@@ -368,4 +365,105 @@ d3.csv("/data/edu-rates-merged.csv")
     })
     .catch((error) => {
         console.error(error);
+    });
+
+
+// Choropleth map
+let choroplethMapPlayable;
+Promise.all([
+    d3.json("/geo/world.geojson"),
+    eduRatesMerged
+])
+    .then((data) => {
+        const geo = data[0];
+        const eduRates = data[1];
+
+        function loadYear(year) {
+            const m = new Map(eduRates[year][1].map((d) => [d["Code"], d]));
+
+            geo.features.forEach((country) => {
+                country.properties.data = m.get(country.id);
+            });
+        };
+
+        loadYear(0);
+
+        const label = "Secondary enrollment";
+
+        choroplethMapPlayable = new ChoroplethMap({
+            parentElement: "#chart-choropleth-map-playable>.chart-area",
+            label,
+            sequenceMax: d3.max(eduRates, (d) => d[1][label]),
+            // TODO: Some of this playback control code is a mess and probably needs to be restructured/rethought
+            playback: {
+                play,
+                pause,
+                reset,
+            }
+        }, geo);
+
+        let playback;
+
+        function play() {
+            choroplethMapPlayable.state.isPlaying = true;
+            clearInterval(playback);
+            if (choroplethMapPlayable.state.index >= eduRates.length) {
+                choroplethMapPlayable.reset();
+            }
+            playback = setInterval(() => {
+                choroplethMapPlayable.state.index++;
+                if (choroplethMapPlayable.state.index >= eduRates.length) {
+                    pause();
+                    return;
+                }
+                loadYear(choroplethMapPlayable.state.index);
+
+                document.querySelector("#chart-choropleth-map-playable .year.label").textContent = eduRates[choroplethMapPlayable.state.index][0];
+
+                choroplethMapPlayable.updateVis();
+            }, 200);
+
+
+            playbackButton.title = "Pause";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "pause");
+        }
+
+        const playbackButton = document.querySelector("#chart-choropleth-map-playable button.playback");
+        const replayButton = document.querySelector("#chart-choropleth-map-playable button.replay");
+
+        function pause() {
+            clearInterval(playback);
+            choroplethMapPlayable.state.isPlaying = false;
+
+            playbackButton.title = "Play";
+            setIcon(playbackButton.querySelector("svg[data-icon]"), "play-arrow");
+
+        }
+
+        function reset() {
+            // NOTE: I had originally paused and reset here, but I think it probably makes more sense to leave 
+            // the playback state alone
+            choroplethMapPlayable.state.index = 0;
+
+            loadYear(choroplethMapPlayable.state.index);
+            document.querySelector("#chart-choropleth-map-playable .year.label").textContent = eduRates[choroplethMapPlayable.state.index][0];
+            choroplethMapPlayable.updateVis();
+        }
+
+        playbackButton.addEventListener("click", () => {
+            if (choroplethMapPlayable.state.isPlaying) {
+                choroplethMapPlayable.pause();
+            } else {
+                choroplethMapPlayable.play();
+            }
+        });
+
+        replayButton.addEventListener("click", () => {
+            choroplethMapPlayable.reset();
+        });
+
+
+    })
+    .catch((error) => {
+        console.error(error)
     });

@@ -13,6 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
 
   --bar-color: #A3006D;
+  --min-color: #FFEAF8;
+  --max-color: #A3006D;
 }
 
 body {
