@@ -273,11 +273,11 @@ d3.csv("/data/edu-rates-merged.csv")
             });
         });
 
+        resolveEduRatesMerged(data);
 
         let groupedData = d3.groups(data, (d) => d["Year"]);
         groupedData.sort((a, b) => a[0] - b[0]);
 
-        resolveEduRatesMerged(groupedData);
 
         gdpScatterPlayable = new GDPScatterPlayable({
             parentElement: "#chart-gdp-scatter-playable>.chart-area",
@@ -361,7 +361,7 @@ d3.csv("/data/edu-rates-merged.csv")
             gdpScatterPlayable.config.xAxis.label = e.target.value;
             gdpScatterPlayable.config.xAxis.sequenceMax = d3.max(data, (d) => d[e.target.value]);
             gdpScatterPlayable.updateVis();
-        })
+        });
     })
     .catch((error) => {
         console.error(error);
@@ -377,9 +377,13 @@ Promise.all([
     .then((data) => {
         const geo = data[0];
         const eduRates = data[1];
+        const xSwitcher = document.querySelector("#chart-choropleth-map-playable select.x-switcher");
+
+        const groupedData = d3.groups(eduRates, (d) => d["Year"]);
+        groupedData.sort((a, b) => a[0] - b[0]);
 
         function loadYear(year) {
-            const m = new Map(eduRates[year][1].map((d) => [d["Code"], d]));
+            const m = new Map(groupedData[year][1].map((d) => [d["Code"], d]));
 
             geo.features.forEach((country) => {
                 country.properties.data = m.get(country.id);
@@ -389,11 +393,12 @@ Promise.all([
         loadYear(0);
 
         const label = "Secondary enrollment";
+        console.log(eduRates[0][1]);
 
         choroplethMapPlayable = new ChoroplethMap({
             parentElement: "#chart-choropleth-map-playable>.chart-area",
             label,
-            sequenceMax: d3.max(eduRates, (d) => d[1][label]),
+            sequenceMax: d3.max(eduRates, (d) => d[label]),
             // TODO: Some of this playback control code is a mess and probably needs to be restructured/rethought
             playback: {
                 play,
@@ -407,18 +412,18 @@ Promise.all([
         function play() {
             choroplethMapPlayable.state.isPlaying = true;
             clearInterval(playback);
-            if (choroplethMapPlayable.state.index >= eduRates.length) {
+            if (choroplethMapPlayable.state.index >= groupedData.length) {
                 choroplethMapPlayable.reset();
             }
             playback = setInterval(() => {
                 choroplethMapPlayable.state.index++;
-                if (choroplethMapPlayable.state.index >= eduRates.length) {
+                if (choroplethMapPlayable.state.index >= groupedData.length) {
                     pause();
                     return;
                 }
                 loadYear(choroplethMapPlayable.state.index);
 
-                document.querySelector("#chart-choropleth-map-playable .year.label").textContent = eduRates[choroplethMapPlayable.state.index][0];
+                document.querySelector("#chart-choropleth-map-playable .year.label").textContent = groupedData[choroplethMapPlayable.state.index][0];
 
                 choroplethMapPlayable.updateVis();
             }, 200);
@@ -446,7 +451,7 @@ Promise.all([
             choroplethMapPlayable.state.index = 0;
 
             loadYear(choroplethMapPlayable.state.index);
-            document.querySelector("#chart-choropleth-map-playable .year.label").textContent = eduRates[choroplethMapPlayable.state.index][0];
+            document.querySelector("#chart-choropleth-map-playable .year.label").textContent = groupedData[choroplethMapPlayable.state.index][0];
             choroplethMapPlayable.updateVis();
         }
 
@@ -460,6 +465,12 @@ Promise.all([
 
         replayButton.addEventListener("click", () => {
             choroplethMapPlayable.reset();
+        });
+
+        xSwitcher.addEventListener("change", (e) => {
+            choroplethMapPlayable.config.label = e.target.value;
+            choroplethMapPlayable.config.sequenceMax = d3.max(eduRates, (d) => d[e.target.value]);
+            choroplethMapPlayable.updateVis();
         });
 
 

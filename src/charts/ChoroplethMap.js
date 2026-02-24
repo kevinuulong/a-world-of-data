@@ -13,11 +13,11 @@ export default class ChoroplethMap {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 520,
-            containerHeight: _config.containerHeight || 320,
+            containerHeight: _config.containerHeight || 340,
             margin: _config.margin || { top: 0, right: 0, bottom: 0, left: 0 },
             tooltipPadding: 10,
-            legendBottom: 50,
-            legendLeft: 50,
+            legendBottom: 30,
+            legendLeft: 20,
             legendRectHeight: 12,
             legendRectWidth: 150,
             sequenceMax: _config.sequenceMax,
@@ -50,14 +50,36 @@ export default class ChoroplethMap {
             .range(["#FFEAF8", "#A3006D"])
             .interpolate(d3.interpolateHcl);
 
+        this.linearGradient = this.svg.append("defs").append("linearGradient")
+            .attr("id", "legend-gradient");
+
+        this.legend = this.chart.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${(this.width * 0.5) - (this.config.legendRectWidth / 2)}, ${this.height - this.config.legendBottom})`);
+
+        this.legendRect = this.legend.append("rect")
+            .attr("width", this.config.legendRectWidth)
+            .attr("height", this.config.legendRectHeight);
+
+        this.legendTitle = this.legend.append("text")
+            .attr("class", "legend-title")
+            .attr("dy", ".35em")
+            .attr("y", -10);
+
         this.updateVis();
     };
 
     updateVis() {
-        console.log(this.data.features[0])
         const extent = this.config.sequenceMax ? [0, this.config.sequenceMax] : d3.extent(this.data.features, (d) => d.properties.data?.[this.config.label]);
 
         this.colorScale.domain(extent);
+
+        this.legendStops = [
+            { color: "#FFEAF8", value: extent[0], offset: 0 },
+            { color: "#A3006D", value: extent[1], offset: 100 },
+        ];
+
+        this.legendTitle.text(this.config.label);
 
         this.renderVis();
     };
@@ -107,6 +129,24 @@ export default class ChoroplethMap {
                 d3.select("#tooltip")
                     .style("display", "none");
             });
+
+        this.legend.selectAll(".legend-label")
+            .data(this.legendStops)
+            .join("text")
+            .attr("class", "legend-label")
+            .attr("text-anchor", "middle")
+            .attr("dy", ".35em")
+            .attr("y", 20)
+            .attr("x", (d) => d.offset / 100 * this.config.legendRectWidth)
+            .text((d) => percentFormatter.format(d.value));
+
+        this.linearGradient.selectAll("stop")
+            .data(this.legendStops)
+            .join("stop")
+            .attr("offset", (d) => d.offset)
+            .attr("stop-color", (d) => d.color);
+
+        this.legendRect.attr("fill", "url(#legend-gradient)");
     };
 
     play() {

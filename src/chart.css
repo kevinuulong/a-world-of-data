@@ -142,3 +142,13 @@
 
     }
 }
+
+.legend-title {
+    font-size: 12px;
+    font-weight: 300;
+}
+
+.legend-label {
+    font-size: 10px;
+    font-weight: 300;
+}
