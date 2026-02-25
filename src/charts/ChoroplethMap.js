@@ -13,8 +13,8 @@ export default class ChoroplethMap {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 520,
-            containerHeight: _config.containerHeight || 340,
-            margin: _config.margin || { top: 0, right: 0, bottom: 0, left: 0 },
+            containerHeight: _config.containerHeight || 320,
+            margin: _config.margin || { top: 40, right: 0, bottom: 0, left: 0 },
             tooltipPadding: 10,
             legendBottom: 30,
             legendLeft: 20,
@@ -23,6 +23,7 @@ export default class ChoroplethMap {
             sequenceMax: _config.sequenceMax,
             label: _config.label,
             playback: _config.playback,
+            formatter: _config.formatter || percentFormatter,
         };
         this.state = {
             index: 0,
@@ -46,16 +47,16 @@ export default class ChoroplethMap {
         this.projection = d3.geoNaturalEarth1();
         this.geoPath = d3.geoPath(this.projection);
 
-        this.colorScale = d3.scaleLinear()
+        this.colorScale = d3.scaleSymlog()
             .range(["#FFEAF8", "#A3006D"])
             .interpolate(d3.interpolateHcl);
 
         this.linearGradient = this.svg.append("defs").append("linearGradient")
             .attr("id", "legend-gradient");
 
-        this.legend = this.chart.append("g")
+        this.legend = this.svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(${(this.width * 0.5) - (this.config.legendRectWidth / 2)}, ${this.height - this.config.legendBottom})`);
+            .attr("transform", `translate(${(this.width * 0.5) - (this.config.legendRectWidth / 2)}, ${this.config.legendBottom})`);
 
         this.legendRect = this.legend.append("rect")
             .attr("width", this.config.legendRectWidth)
@@ -116,14 +117,9 @@ export default class ChoroplethMap {
                 .style("display", "flex")
                 .style("left", `${e.pageX + 8}px`)
                 .style("top", `${e.pageY + 8}px`)
-                .html(`
-                        <div class="tooltip-labels">
-                            <div class="tooltip-primary">
-                                ${d.properties.data?.[this.config.label] != undefined ? percentFormatter.format(d.properties.data?.[this.config.label]) : "No data available"}
-                            </div>
-                            <div class="tooltip-title">${d.properties.data?.["Entity"] || d.properties.name}</div>
-                        </div>
-                    `);
+            
+            this.updateTooltip();
+
         })
             .on("mouseleave", (e, d) => {
                 d3.select("#tooltip")
@@ -138,7 +134,7 @@ export default class ChoroplethMap {
             .attr("dy", ".35em")
             .attr("y", 20)
             .attr("x", (d) => d.offset / 100 * this.config.legendRectWidth)
-            .text((d) => percentFormatter.format(d.value));
+            .text((d) => this.config.formatter.format(d.value));
 
         this.linearGradient.selectAll("stop")
             .data(this.legendStops)
@@ -147,6 +143,8 @@ export default class ChoroplethMap {
             .attr("stop-color", (d) => d.color);
 
         this.legendRect.attr("fill", "url(#legend-gradient)");
+
+        this.updateTooltip();
     };
 
     play() {
@@ -159,5 +157,27 @@ export default class ChoroplethMap {
 
     reset() {
         this.config.playback?.reset();
+    };
+
+    updateTooltip() {
+        const country = d3.select(".country:hover");
+        if (country.empty()) return;
+
+        const d = country.datum();
+        d3.select("#tooltip")
+            .html(`
+                        <div class="tooltip-labels">
+                            <div class="tooltip-primary">
+                                ${d.properties.data?.[this.config.label] != undefined ? this.config.formatter.format(d.properties.data?.[this.config.label]) : "No data available"}
+                            </div>
+                            <div class="tooltip-title">${d.properties.data?.["Entity"] || d.properties.name}</div>
+                            ${d.properties.data?.["isOld"] ? `
+                                <div class="tooltip-warning">
+                                    Data from <b>${d.properties.data?.["year"]}</b> (last available)
+                                </div>
+                            ` : ""}
+                        </div>
+                    `);
+
     };
 };

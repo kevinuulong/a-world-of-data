@@ -17,12 +17,10 @@ import EduRatePlayable from "./charts/EduRatePlayable";
 import GDPPlayable from "./charts/GDPPlayable";
 import GDPScatterPlayable from "./charts/GDPScatterPlayable";
 import ChoroplethMap from "./charts/ChoroplethMap";
+import LegalEduScatter from "./charts/LegalEduScatter";
 
 hydrateIcons();
 
-// TODO: If the element is already fully visible on page load eduRatePlayable 
-// is still undefined. I fixed this for now by just not worrying about it and
-// making it fail silently, but this may be worth coming back to if I have time.
 const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -37,6 +35,10 @@ const observer = new IntersectionObserver((entries, observer) => {
 
                 case "chart-gdp-scatter-playable":
                     gdpScatterPlayable?.play();
+                    break;
+
+                case "chart-choropleth-map-playable":
+                    choroplethMapPlayable?.play();
                     break;
 
                 default:
@@ -56,6 +58,10 @@ const observer = new IntersectionObserver((entries, observer) => {
                     gdpScatterPlayable?.pause();
                     break;
 
+                case "chart-choropleth-map-playable":
+                    choroplethMapPlayable?.pause();
+                    break;
+
                 default:
                     break;
             }
@@ -66,11 +72,6 @@ const observer = new IntersectionObserver((entries, observer) => {
     root: null,
 
 });
-
-observer.observe(document.getElementById("chart-edu-rate-playable"));
-observer.observe(document.getElementById("chart-gdp-playable"));
-observer.observe(document.getElementById("chart-gdp-scatter-playable"));
-
 
 // Education Rate Playable Bar Chart
 let eduRatePlayable;
@@ -155,6 +156,9 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
             eduRatePlayable.reset();
         });
     })
+    .then(() => {
+        observer.observe(document.getElementById("chart-edu-rate-playable"));
+    })
     .catch((error) => {
         console.error(error);
     });
@@ -162,7 +166,7 @@ d3.csv("/data/primary-secondary-enrollment-completion-rates.csv")
 
 // GDP Playable Histogram
 let gdpPlayable;
-d3.csv("/data/gdp-distribution-log.csv")
+d3.csv("/data/gdp-per-capita-distribution-log.csv")
     .then((data) => {
         const labels = data.columns.slice(1);
         // TODO: I don't know if this is the most efficient/best way to do this
@@ -244,6 +248,9 @@ d3.csv("/data/gdp-distribution-log.csv")
         replayButton.addEventListener("click", () => {
             gdpPlayable.reset();
         });
+    })
+    .then(() => {
+        observer.observe(document.getElementById("chart-gdp-playable"));
     })
     .catch((error) => {
         console.error(error);
@@ -363,10 +370,14 @@ d3.csv("/data/edu-rates-merged.csv")
             gdpScatterPlayable.updateVis();
         });
     })
+    .then(() => {
+        observer.observe(document.getElementById("chart-gdp-scatter-playable"));
+    })
     .catch((error) => {
         console.error(error);
     });
 
+const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
 
 // Choropleth map
 let choroplethMapPlayable;
@@ -378,26 +389,46 @@ Promise.all([
         const geo = data[0];
         const eduRates = data[1];
         const xSwitcher = document.querySelector("#chart-choropleth-map-playable select.x-switcher");
+        const currencyFormatter = new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" });
 
         const groupedData = d3.groups(eduRates, (d) => d["Year"]);
         groupedData.sort((a, b) => a[0] - b[0]);
 
-        function loadYear(year) {
+        const mostRecentData = new Map();
+
+        function loadYear(year, label = choroplethMapPlayable.config.label) {
             const m = new Map(groupedData[year][1].map((d) => [d["Code"], d]));
 
             geo.features.forEach((country) => {
-                country.properties.data = m.get(country.id);
+                const data = m.get(country.id);
+
+                // TODO: This is really hacky, I kind of tacked this on at the last second
+                if (data && data[label] !== null) {
+                    mostRecentData.set(country.id, {
+                        isOld: false,
+                        year: groupedData[year][0],
+                        ...data,
+                    });
+                } else if (mostRecentData.has(country.id)) {
+                    mostRecentData.set(country.id, {
+                        ...mostRecentData.get(country.id),
+                        isOld: true,
+                    });
+                };
+
+                country.properties.data = mostRecentData.get(country.id);
             });
+
         };
 
-        loadYear(0);
+        const label = xSwitcher.value;
 
-        const label = "Secondary enrollment";
-        console.log(eduRates[0][1]);
+        loadYear(0, label);
 
         choroplethMapPlayable = new ChoroplethMap({
             parentElement: "#chart-choropleth-map-playable>.chart-area",
             label,
+            formatter: percentFields.includes(xSwitcher.value) ? percentFormatter : currencyFormatter,
             sequenceMax: d3.max(eduRates, (d) => d[label]),
             // TODO: Some of this playback control code is a mess and probably needs to be restructured/rethought
             playback: {
@@ -469,12 +500,60 @@ Promise.all([
 
         xSwitcher.addEventListener("change", (e) => {
             choroplethMapPlayable.config.label = e.target.value;
+            choroplethMapPlayable.config.formatter = percentFields.includes(e.target.value) ? percentFormatter : currencyFormatter;
             choroplethMapPlayable.config.sequenceMax = d3.max(eduRates, (d) => d[e.target.value]);
+            // TODO: It pains me to do it this way, but I really wanted the "rate" in the title and this is by far the easiest way to do it (I'm aware it's bad)
+            document.querySelector("#chart-choropleth-map-playable .chart-title").textContent = percentFields.includes(e.target.value) ? `${e.target.value} rate` : e.target.value;
             choroplethMapPlayable.updateVis();
         });
 
 
     })
+    .then(() => {
+        observer.observe(document.getElementById("chart-choropleth-map-playable"));
+    })
     .catch((error) => {
         console.error(error)
+    });
+
+// LGBT+ Legal Equity Index Scatter plot
+let legalEduScatter;
+d3.csv("/data/legal-edu-merged.csv")
+    .then((data) => {
+        const labels = data.columns.slice(3);
+        const xSwitcher = document.querySelector("#chart-legal-edu select.x-switcher");
+
+        // TODO: I don't know if this is the most efficient/best way to do this
+        data.forEach((row) => {
+            labels.forEach((label) => {
+                // Handle missing data
+                if (row[label] === "") {
+                    row[label] = null;
+                    return;
+                }
+                row[label] = Number(row[label]);
+                if (percentFields.includes(label)) {
+                    row[label] = row[label] / 100;
+                }
+            });
+        });
+
+        legalEduScatter = new LegalEduScatter({
+            parentElement: "#chart-legal-edu>.chart-area",
+            xAxis: {
+                label: xSwitcher.value,
+            },
+            yAxis: {
+                label: "Legal equality index",
+                sequenceMax: 100,
+            }
+        }, data);
+
+        xSwitcher.addEventListener("change", (e) => {
+            legalEduScatter.config.xAxis.label = e.target.value;
+            legalEduScatter.updateVis();
+        });
+    })
+    .catch((error) => {
+        console.error(error);
     });

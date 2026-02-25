@@ -73,6 +73,20 @@
 
 }
 
+
+.tooltip-warning {
+    font-family: 'Merriweather Sans Variable';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 12px;
+    line-height: 18px;
+
+    color: #000000;
+
+    flex: none;
+    flex-grow: 0;
+}
+
 .chart-area {
     .tick {
         text {
@@ -118,7 +132,8 @@
     }
 }
 
-#chart-gdp-scatter-playable {
+#chart-gdp-scatter-playable,
+#chart-legal-edu {
     .chart-area {
         .x-axis {
             .tick {
