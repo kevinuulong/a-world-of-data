@@ -31,6 +31,9 @@
       </header>
       <section class="content main">
         <p>It’s no great secret that globally, education rates have been on the rise for decades.</p>
+        <p>The UNESCO Institute for Statistics tracks primary, secondary, and tertiary enrollment rates, which are the
+          number of students enrolled in primary, secondary, or tertiary education programs versus the officially
+          reported size of the age group.</p>
 
         <div class="container">
           <figure id="chart-edu-rate-playable">
@@ -73,8 +76,17 @@
           </details>
         </div>
 
+        <p>From 1970 to 2023, the most recent year with data available, the gross secondary enrollment rate has nearly
+          doubled, and the gross tertiary enrollment rate has more than quadrupled!</p>
+
+        <p>This is some seriously great progress, but it leaves open room for the question, what does the world look
+          like with an increasingly well-educated population?</p>
+
         <p>Perhaps the most obvious, and therefore least interesting, expected outcome from this increasingly educated
-          populace is an increase in GDP.</p>
+          populace is an increase in GDPs.</p>
+
+        <p>It makes sense, in a world where increasingly the highest paying sectors are highly skilled services type
+          roles, an increase in educated well-trained workers naturally leads to higher economic output.</p>
 
         <div class="container">
           <figure id="chart-gdp-playable">
@@ -98,8 +110,15 @@
           </figure>
         </div>
 
-        <p>We can see this clear correlation. The higher the levels of educational attainment, the higher a country's
-          GDP rises.</p>
+        <p>The shift here was subtle, but if you imagine a bell curve over the bars, it starts in 1970 very far to the
+          left and as time goes on and eventually reaches 2023 has drifted steadily to the right.</p>
+
+        <p>Did you miss it? Now that you know what you are looking for, try replaying the animation and see if you can
+          catch it.</p>
+
+        <p>Perhaps this trend is most clear when comparing it with our enrollment rates from earlier. We’ll start with
+          secondary enrollment rates because this is where the trend is the easiest to spot, but you can always switch
+          to primary or tertiary enrollment rates using the axis control at the bottom.</p>
 
         <div class="container">
           <figure id="chart-gdp-scatter-playable">
@@ -147,8 +166,20 @@
           </details>
         </div>
 
-        <p>But what if we swap this for something more interesting? There is a lot of talk that increased education
-          often correlates to a more accepting populace...</p>
+        <p>From this we can see a clear trend emerge. While it is not strictly correlational, in general as the
+          educational enrollment rate rises, so does the per capita GDP.</p>
+
+        <p>We cannot definitively from this say that higher enrollment rates <i>cause</i> a country’s GDP per capita to
+          rise,
+          but we can reasonably conclude that it is very difficult for a country with low enrollment rates (especially
+          primary and secondary) to have a high GDP per capita. The inverse also appears to be true; the higher a
+          country’s educational enrollment rates the higher the likelihood they will have a high GDP per capita.</p>
+
+        <p>These are all great observations, but it can be a little difficult to track specific countries, let’s see
+          these data on a map!</p>
+
+        <p>Hover over the countries below to track each value. Like before you can use the control at the bottom to
+          switch between enrollment rates and GDP per capita.</p>
 
         <div class="container">
           <figure id="chart-choropleth-map-playable">
@@ -197,9 +228,18 @@
           </details>
         </div>
 
+        <p>That’s all well and good but what if we swap this for something more interesting?</p>
+        <p>This whole concept started because I had often heard talk that increasing education rates would result in a
+          more accepting populace, but does that hypothesis really pan out?</p>
+        <p>While public policy in many cases tends to lag public opinion, it can still be a useful barometer to
+          understand how the public is feeling about an issue.</p>
+        <p>The LGBT+ Legal Equality Index combines and weights 15 different individual policies related to LGBT+ rights
+          and equality into an easily comparable score.</p>
+        <p>Let’s once again graph it versus our educational enrollment data.</p>
+
         <div class="container">
           <figure id="chart-legal-edu">
-            <h2 class="chart-title">LGBT+ Legal Equity Index by enrollment rate</h2>
+            <h2 class="chart-title">LGBT+ Legal Equality Index by enrollment rate</h2>
             <div class="chart-details">
               <div class="chart-subtitle">
                 <h3 class="year label">Most recent years available</h3>
@@ -234,6 +274,9 @@
             </div>
           </details>
         </div>
+        
+        <p>Once again, we see a similar pattern start to emerge, countries with higher educational enrollment rates are
+          more likely, but not guaranteed, to have more equitable laws surrounding LGBT+ rights.</p>
       </section>
     </article>
   </main>
